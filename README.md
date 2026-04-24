@@ -36,7 +36,6 @@ Usuario → Nginx → FastAPI → PostgreSQL/PostGIS
 ## 🚀 Instalación y ejecución
 
 ```bash
-git clone https://github.com/aldriv16/geo-points.git
 cd geo-points
 docker compose up -d --build
 ```
