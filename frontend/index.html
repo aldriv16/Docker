@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+<<<<<<< HEAD
 
 <head>
     <meta charset="UTF-8">
@@ -10,10 +11,33 @@
     href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 
     <link rel="stylesheet" href="style.css">
+=======
+<head>
+<meta charset="UTF-8">
+<title>GeoPoints Pro</title>
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+
+<style>
+body { font-family: Arial; margin: 0; }
+#map { height: 60vh; }
+
+form {
+  padding: 10px;
+  background: #f4f4f4;
+}
+
+input, select, button {
+  margin: 5px;
+  padding: 8px;
+}
+</style>
+>>>>>>> 4b0bd6a80cea2db773ab1ab0adb3bd2a13ad94d3
 </head>
 
 <body>
 
+<<<<<<< HEAD
 <header class="topbar">
 
     <div>
@@ -89,5 +113,139 @@ src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js">
 
 <script src="app.js"></script>
 
+=======
+<h2>📍 Puntos de Interés</h2>
+
+<div id="map"></div>
+
+<form onsubmit="guardar(event)">
+<input id="nombre" placeholder="Nombre">
+<input id="descripcion" placeholder="Descripción">
+
+<select id="categoria">
+  <option value="cultural">Cultural</option>
+  <option value="salud">Salud</option>
+  <option value="servicio">Servicio</option>
+</select>
+
+<input id="lat" placeholder="Latitud">
+<input id="lng" placeholder="Longitud">
+
+<button>Guardar</button>
+</form>
+
+<select onchange="filtrar(this.value)">
+<option value="">Todas</option>
+<option value="cultural">Cultural</option>
+<option value="salud">Salud</option>
+<option value="servicio">Servicio</option>
+</select>
+
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+<script>
+let map = L.map('map').setView([14.63, -90.51], 13);
+
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png')
+.addTo(map);
+
+let markers = [];
+
+// 📍 CLICK EN MAPA
+map.on('click', function(e) {
+    document.getElementById('lat').value = e.latlng.lat;
+    document.getElementById('lng').value = e.latlng.lng;
+});
+
+// 🔄 CARGAR PUNTOS
+function cargar(categoria="") {
+    markers.forEach(m => map.removeLayer(m));
+    markers = [];
+
+    fetch('/api/puntos' + (categoria ? '?categoria='+categoria : ''))
+    .then(r => r.json())
+    .then(data => {
+        data.puntos.forEach(p => {
+            let marker = L.marker([p.lat, p.lng]).addTo(map)
+            .bindPopup(`
+                <b>${p.nombre}</b><br>
+                ${p.descripcion}<br>
+                <button onclick="editar(${p.id}, '${p.nombre}', '${p.descripcion}', '${p.categoria}', ${p.lat}, ${p.lng})">Editar</button>
+                <button onclick="eliminar(${p.id})">Eliminar</button>
+            `);
+            markers.push(marker);
+        });
+    });
+}
+
+// ➕ GUARDAR
+function guardar(e) {
+    e.preventDefault();
+
+    let nombre = document.getElementById('nombre').value;
+    let descripcion = document.getElementById('descripcion').value;
+    let categoria = document.getElementById('categoria').value;
+    let lat = document.getElementById('lat').value;
+    let lng = document.getElementById('lng').value;
+
+    if(!nombre || !lat || !lng){
+        alert("Campos obligatorios");
+        return;
+    }
+
+    fetch('/api/puntos', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ nombre, descripcion, categoria, lat, lng })
+    })
+    .then(() => {
+        alert("Guardado correctamente");
+        cargar();
+    });
+}
+
+// ❌ ELIMINAR
+function eliminar(id){
+    fetch('/api/puntos/'+id, { method:'DELETE' })
+    .then(() => {
+        alert("Eliminado");
+        cargar();
+    });
+}
+
+// ✏️ EDITAR
+function editar(id, nombre, descripcion, categoria, lat, lng){
+    document.getElementById('nombre').value = nombre;
+    document.getElementById('descripcion').value = descripcion;
+    document.getElementById('categoria').value = categoria;
+    document.getElementById('lat').value = lat;
+    document.getElementById('lng').value = lng;
+
+    document.querySelector("form button").innerText = "Actualizar";
+
+    document.querySelector("form").onsubmit = function(e){
+        e.preventDefault();
+
+        fetch('/api/puntos/'+id, {
+            method:'PUT',
+            headers:{'Content-Type':'application/json'},
+            body: JSON.stringify({ nombre, descripcion, categoria, lat, lng })
+        })
+        .then(()=>{
+            alert("Actualizado");
+            location.reload();
+        });
+    }
+}
+
+// 🔍 FILTRO
+function filtrar(cat){
+    cargar(cat);
+}
+
+cargar();
+</script>
+
+>>>>>>> 4b0bd6a80cea2db773ab1ab0adb3bd2a13ad94d3
 </body>
 </html>
