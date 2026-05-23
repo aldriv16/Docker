@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GeoPoints Pro</title>
+
+    <link rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<header class="topbar">
+
+    <div>
+        <h1>🌎 GeoPoints Pro</h1>
+        <p>Plataforma Geoespacial Inteligente</p>
+    </div>
+
+    <button id="themeBtn">
+        🌙
+    </button>
+
+</header>
+
+<div class="container">
+
+    <aside class="sidebar">
+
+        <h2>📍 Gestión de Puntos</h2>
+
+        <input id="search"
+        placeholder="Buscar punto...">
+
+        <input id="nombre"
+        placeholder="Nombre">
+
+        <input id="descripcion"
+        placeholder="Descripción">
+
+        <select id="categoria">
+            <option value="cultural">Cultural</option>
+            <option value="salud">Salud</option>
+            <option value="servicio">Servicio</option>
+            <option value="gastronomico">Gastronómico</option>
+        </select>
+
+        <input id="lat"
+        placeholder="Latitud">
+
+        <input id="lng"
+        placeholder="Longitud">
+
+        <button onclick="guardarPunto()">
+            Guardar Punto
+        </button>
+
+        <div class="stats">
+
+            <div class="card">
+                <h3 id="totalPuntos">0</h3>
+                <p>Puntos</p>
+            </div>
+
+            <div class="card">
+                <h3>Docker</h3>
+                <p>Activo</p>
+            </div>
+
+        </div>
+
+    </aside>
+
+    <main>
+
+        <div id="map"></div>
+
+    </main>
+
+</div>
+
+<script
+src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js">
+</script>
+
+<script src="app.js"></script>
+
+</body>
+</html>
