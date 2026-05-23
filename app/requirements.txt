@@ -1,7 +1,4 @@
 fastapi
 uvicorn
 psycopg2-binary
-<<<<<<< HEAD
-pydantic
-=======
->>>>>>> 4b0bd6a80cea2db773ab1ab0adb3bd2a13ad94d3
+python-dotenv
