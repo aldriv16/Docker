@@ -1,65 +1,72 @@
 from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse
+
 from sqlalchemy import create_engine, text
 import os
 
-app = FastAPI()
+app = FastAPI(title="Sistema de Registro de Puntos de Interés")
 
 # =========================
-# CORS
+# CONEXIÓN A POSTGRESQL
 # =========================
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+
+DATABASE_URL = os.getenv(
+    "DATABASE_URL",
+    "postgresql://postgress:JMcQorcgMrqlKycZ39nxridK0MPY3ang@dpg-d88ge7egvqtc73b34tg0-a.oregon-postgres.render.com/geopoints"
 )
-
-# =========================
-# DATABASE
-# =========================
-DATABASE_URL = os.getenv("DATABASE_URL")
 
 engine = create_engine(DATABASE_URL)
 
 # =========================
-# API ENDPOINTS
-# =========================
-@app.get("/puntos")
-def obtener_puntos():
-
-    query = text("""
-        SELECT id, nombre, latitud, longitud
-        FROM puntos_interes
-    """)
-
-    with engine.connect() as conn:
-        result = conn.execute(query)
-
-        puntos = []
-
-        for row in result:
-            puntos.append({
-                "id": row.id,
-                "nombre": row.nombre,
-                "latitud": row.latitud,
-                "longitud": row.longitud
-            })
-
-        return puntos
-
-
-# =========================
 # FRONTEND
 # =========================
+
 frontend_path = os.path.join(os.path.dirname(__file__), "frontend")
 
-app.mount("/static", StaticFiles(directory=frontend_path), name="static")
+if os.path.exists(frontend_path):
+    app.mount("/static", StaticFiles(directory=frontend_path), name="static")
 
+# =========================
+# RUTA PRINCIPAL
+# =========================
 
 @app.get("/")
 def home():
-    return FileResponse(os.path.join(frontend_path, "index.html"))
+    index_path = os.path.join(frontend_path, "index.html")
+    return FileResponse(index_path)
+
+# =========================
+# API PUNTOS
+# =========================
+
+@app.get("/api/puntos")
+def obtener_puntos():
+
+    try:
+        with engine.connect() as connection:
+
+            resultado = connection.execute(text("""
+                SELECT id, nombre, descripcion, latitud, longitud
+                FROM puntos_interes
+                ORDER BY id ASC
+            """))
+
+            puntos = []
+
+            for fila in resultado:
+                puntos.append({
+                    "id": fila.id,
+                    "nombre": fila.nombre,
+                    "descripcion": fila.descripcion,
+                    "latitud": float(fila.latitud),
+                    "longitud": float(fila.longitud)
+                })
+
+            return JSONResponse(content=puntos)
+
+    except Exception as e:
+        return JSONResponse(
+            status_code=500,
+            content={"error": str(e)}
+        )
